@@ -4,10 +4,10 @@ const router=express.Router();
 
 const{
 
-getDashboard
+getAnalytics
 
-}=require("../controllers/dashboardController");
+}=require("../controllers/analyticsController");
 
-router.get("/",getDashboard);
+router.get("/",getAnalytics);
 
 module.exports=router;

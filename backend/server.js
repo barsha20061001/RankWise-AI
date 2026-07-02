@@ -5,7 +5,13 @@ const searchRoutes = require("./routes/searchRoutes");
 
 const app = express();
 
-const dashboardRoutes = require("./routes/dashboardRoutes");
+
+
+const dashboardRoutes=require("./routes/dashboardRoutes");
+
+const candidateRoutes=require("./routes/candidateRoutes");
+
+const analyticsRoutes=require("./routes/analyticsRoutes");
 
 // =============================
 // Middleware
@@ -26,7 +32,11 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 // =============================
 
-app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/dashboard",dashboardRoutes);
+
+app.use("/api/candidates",candidateRoutes);
+
+app.use("/api/analytics",analyticsRoutes);
 
 app.use("/api", searchRoutes);
 

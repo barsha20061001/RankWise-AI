@@ -8,6 +8,8 @@ import Search from "./pages/Search";
 import Candidates from "./pages/Candidates";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
+import CandidateDetails from "./pages/CandidateDetails";
+
 
 function App() {
   return (
@@ -22,18 +24,14 @@ function App() {
         <main className="flex-1 p-8">
 
           <Routes>
-
-            <Route path="/" element={<Dashboard />} />
-
-            <Route path="/search" element={<Search />} />
-
-            <Route path="/candidates" element={<Candidates />} />
-
-            <Route path="/analytics" element={<Analytics />} />
-
-            <Route path="/settings" element={<Settings />} />
-
-          </Routes>
+  <Route path="/" element={<Dashboard />} />
+  <Route path="/search" element={<Search />} />
+  <Route path="/candidates" element={<Candidates />} />
+  <Route path="/candidate/:id" element={<CandidateDetails />} />
+  <Route path="/analytics" element={<Analytics />} />
+  <Route path="/candidate/:id" element={<CandidateDetails />} />
+  <Route path="/settings" element={<Settings />} />
+</Routes>
 
         </main>
 

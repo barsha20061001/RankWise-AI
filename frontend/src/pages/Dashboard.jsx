@@ -1,246 +1,442 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
-  Users,
-  TrendingUp,
-  Brain,
-  Award,
-  ArrowRight,
-} from "lucide-react";
+  FaUsers,
+  FaBriefcase,
+  FaCode,
+  FaChartLine,
+  FaSearch,
+  FaArrowRight,
+  FaRobot,
+  FaCheckCircle,
+  FaGraduationCap,
+} from "react-icons/fa";
 
-import api from "../services/api";
+import api from "../api/api";
+import "./Dashboard.css";
+
+import ExperienceChart from "../components/ExperienceChart";
+import EducationChart from "../components/EducationChart";
+import SkillsChart from "../components/SkillsChart";
 
 export default function Dashboard() {
-  const [dashboard, setDashboard] =useState(null);
-  const [loading, setLoading] = useState(true);
+
+  const [analytics, setAnalytics] = useState(null);
 
   useEffect(() => {
-    fetchDashboard();
+
+    loadDashboard();
+
   }, []);
 
-  async function fetchDashboard() {
+  async function loadDashboard() {
+
     try {
-      const res = await api.get("/dashboard");
-      setDashboard(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+
+      const res = await api.get("/analytics");
+
+      setAnalytics(res.data);
+
     }
+
+    catch (err) {
+
+      console.log(err);
+
+    }
+
   }
 
-  if (loading) {
-    return (
-      <div className="text-center text-white text-2xl mt-20">
-        Loading Dashboard...
-      </div>
+  if (!analytics)
+    return <div className="dashboard-loading">Loading Dashboard...</div>;
+
+  /* -------------------------------- */
+
+  const totalCandidates =
+    Object.values(analytics.education).reduce(
+      (a, b) => a + b,
+      0
     );
-  }
 
-  const stats = [
-    {
-      title: "Candidates",
-      value: dashboard.totalCandidates,
-      icon: Users,
-      color: "from-cyan-500 to-blue-600",
-    },
-    {
-      title: "Average Experience",
-      value: `${dashboard.averageExperience} Years`,
-      icon: TrendingUp,
-      color: "from-violet-500 to-purple-600",
-    },
-    {
-      title: "Top Skills",
-      value: dashboard.topSkills.length,
-      icon: Brain,
-      color: "from-emerald-500 to-green-600",
-    },
-    {
-      title: "AI Search Ready",
-      value: "100%",
-      icon: Award,
-      color: "from-orange-500 to-red-500",
-    },
-  ];
+  const experienceMap = {
+    Fresher: 0,
+    Junior: 2,
+    Mid: 5,
+    Senior: 9,
+  };
+
+  let weighted = 0;
+
+  Object.entries(analytics.experience).forEach(
+    ([level, count]) => {
+
+      weighted += experienceMap[level] * count;
+
+    }
+  );
+
+  const averageExperience = (
+    weighted / totalCandidates
+  ).toFixed(1);
+
+  const topSkill = analytics.topSkills[0][0];
+
+  const maxSkill = analytics.topSkills[0][1];
 
   return (
-    <div className="space-y-8">
 
-      {/* Hero */}
+    <div className="dashboard-page">
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-600/20 via-blue-500/10 to-violet-600/20 p-10"
-      >
-        <p className="text-cyan-300 font-semibold">
-          Welcome Back 👋
-        </p>
+      {/* HERO */}
 
-        <h1 className="mt-3 text-5xl font-black">
-          AI Powered Candidate Ranking
-        </h1>
+      <section className="hero-section">
 
-        <p className="mt-5 text-gray-300 max-w-3xl">
-          Search thousands of candidates using semantic search,
-          AI ranking, recruiter signals and explainable AI.
-        </p>
+        <div>
 
-        <button
-          className="mt-8 flex items-center gap-3 rounded-xl
-          bg-cyan-500 px-6 py-4 font-semibold
-          hover:bg-cyan-600 transition"
-        >
-          Start Searching
-          <ArrowRight size={18} />
-        </button>
-      </motion.div>
+        
 
-      {/* Statistics */}
+          <p>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            AI-powered recruitment insights to help you
+            discover, rank and hire top talent faster.
 
-        {stats.map((item, index) => {
+          </p>
 
-          const Icon = item.icon;
+        </div>
 
-          return (
+        <div className="hero-buttons">
 
-            <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08 }}
-              className="rounded-2xl bg-[#0F172A]
-              border border-white/10 p-6"
-            >
+          <Link to="/search">
 
-              <div
-                className={`mb-6 flex h-14 w-14
-                items-center justify-center rounded-xl
-                bg-gradient-to-r ${item.color}`}
-              >
+            <button className="primary-btn">
 
-                <Icon size={26} />
+              <FaSearch />
 
-              </div>
+              Search Candidates
 
-              <p className="text-gray-400">
+            </button>
 
-                {item.title}
+          </Link>
 
-              </p>
+          <Link to="/analytics">
 
-              <h2 className="mt-2 text-4xl font-bold">
+            <button className="secondary-btn">
 
-                {item.value}
+              <FaChartLine />
 
-              </h2>
+              Analytics
 
-            </motion.div>
+            </button>
 
-          );
+          </Link>
 
-        })}
+        </div>
 
-      </div>
+      </section>
 
-      {/* Bottom Section */}
+      {/* KPI */}
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <section className="stats-grid">
 
-        {/* Top Skills */}
+        <div className="stat-card">
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="rounded-2xl bg-[#0F172A]
-          border border-white/10 p-7"
-        >
+          <div className="icon blue">
 
-          <h2 className="text-2xl font-bold mb-6">
-
-            Top Skills In Dataset
-
-          </h2>
-
-          <div className="space-y-4">
-
-            {dashboard.topSkills.map(([skill, count]) => (
-
-              <div
-                key={skill}
-                className="flex items-center justify-between
-                rounded-xl bg-white/5 p-4"
-              >
-
-                <span className="capitalize">
-
-                  {skill}
-
-                </span>
-
-                <span
-                  className="rounded-full
-                  bg-cyan-500 px-3 py-1 text-sm"
-                >
-
-                  {count}
-
-                </span>
-
-              </div>
-
-            ))}
+            <FaUsers />
 
           </div>
 
-        </motion.div>
+          <div>
 
-        {/* Project Info */}
+            <h2>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="rounded-2xl bg-[#0F172A]
-          border border-white/10 p-7"
-        >
+              {totalCandidates.toLocaleString()}
 
-          <h2 className="text-2xl font-bold mb-6">
+            </h2>
 
-            AI Pipeline
+            <span>Total Candidates</span>
 
-          </h2>
+            <small>
 
-          <div className="space-y-5">
+              AI Indexed Database
 
-            <div className="rounded-xl bg-white/5 p-4">
-              ✅ Semantic Search (Sentence Transformers)
-            </div>
+            </small>
 
-            <div className="rounded-xl bg-white/5 p-4">
-              ✅ FAISS Vector Search
-            </div>
+          </div>
 
-            <div className="rounded-xl bg-white/5 p-4">
-              ✅ Intelligent Ranking Engine
-            </div>
+        </div>
 
-            <div className="rounded-xl bg-white/5 p-4">
-              ✅ Recruiter Signal Analysis
-            </div>
+        <div className="stat-card">
 
-            <div className="rounded-xl bg-white/5 p-4">
-              ✅ Explainable AI
+          <div className="icon green">
+
+            <FaBriefcase />
+
+          </div>
+
+          <div>
+
+            <h2>
+
+              {averageExperience} yrs
+
+            </h2>
+
+            <span>Average Experience</span>
+
+            <small>
+
+              Across all profiles
+
+            </small>
+
+          </div>
+
+        </div>
+
+        <div className="stat-card">
+
+          <div className="icon orange">
+
+            <FaCode />
+
+          </div>
+
+          <div>
+
+            <h2>
+
+              {topSkill}
+
+            </h2>
+
+            <span>Most Popular Skill</span>
+
+            <small>
+
+              {maxSkill.toLocaleString()} Candidates
+
+            </small>
+
+          </div>
+
+        </div>
+
+        <div className="stat-card">
+
+          <div className="icon purple">
+
+            <FaRobot />
+
+          </div>
+
+          <div>
+
+            <h2>
+
+              {analytics.topSkills.length}
+
+            </h2>
+
+            <span>Trending Skills</span>
+
+            <small>
+
+              AI detected
+
+            </small>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* CONTENT */}
+
+      <section className="dashboard-content">
+
+        {/* LEFT */}
+
+        <div className="left-column">
+
+          <SkillsChart
+  skills={analytics.topSkills}
+/>
+
+          <ExperienceChart
+  data={analytics.experience}
+/>
+
+        </div>
+
+        {/* RIGHT */}
+
+        <div className="right-column">
+
+          {/* QUICK ACTIONS */}
+
+          <div className="dashboard-card">
+
+            <h2>
+
+              Quick Actions
+
+            </h2>
+
+            <div className="action-grid">
+
+              <Link to="/search">
+
+                <button>
+
+                  <FaSearch />
+
+                  Search
+
+                </button>
+
+              </Link>
+
+              <Link to="/candidates">
+
+                <button>
+
+                  <FaUsers />
+
+                  Candidates
+
+                </button>
+
+              </Link>
+
+              <Link to="/analytics">
+
+                <button>
+
+                  <FaChartLine />
+
+                  Analytics
+
+                </button>
+
+              </Link>
+
+              <Link to="/settings">
+
+                <button>
+
+                  <FaArrowRight />
+
+                  Settings
+
+                </button>
+
+              </Link>
+
             </div>
 
           </div>
 
-        </motion.div>
+          {/* AI INSIGHTS */}
 
-      </div>
+          <div className="dashboard-card">
+
+            <h2>
+
+              AI Insights
+
+            </h2>
+
+            <ul className="insight-list">
+
+              <li>
+
+                <FaCheckCircle />
+
+                Database contains
+
+                <strong>
+
+                  {totalCandidates.toLocaleString()}
+
+                </strong>
+
+                indexed candidates.
+
+              </li>
+
+              <li>
+
+                <FaCheckCircle />
+
+                Average experience is
+
+                <strong>
+
+                  {averageExperience} years.
+
+                </strong>
+
+              </li>
+
+              <li>
+
+                <FaCheckCircle />
+
+                Most demanded skill is
+
+                <strong>
+
+                  {topSkill}.
+
+                </strong>
+
+              </li>
+
+              <li>
+
+                <FaCheckCircle />
+
+                Senior professionals dominate the
+                talent pool.
+
+              </li>
+
+              <li>
+
+                <FaCheckCircle />
+
+                Education spans
+
+                <strong>
+
+                  {
+                    Object.keys(
+                      analytics.education
+                    ).length
+                  }
+
+                </strong>
+
+                degree categories.
+
+              </li>
+
+            </ul>
+
+          </div>
+
+          <EducationChart
+  data={analytics.education}
+/>
+
+        </div>
+
+      </section>
 
     </div>
+
   );
+
 }
