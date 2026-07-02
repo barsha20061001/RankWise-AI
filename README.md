@@ -345,14 +345,11 @@ The project uses a structured candidate dataset containing:
 - Explainable AI
 - Express backend API
 - Backend testing
-
-##  In Progress
-
 - React Frontend
 - Candidate Dashboard
 - Search Interface
 - Visualization
-- Deployment
+
 
 ---
 
