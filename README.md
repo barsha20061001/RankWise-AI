@@ -190,7 +190,7 @@ Certification Score
 ## Clone Repository
 
 ```bash
-git clone https://github.com/<your-username>/RankWise-AI.git
+git clone https://github.com/<barsha20061001>/RankWise-AI.git
 
 cd RankWise-AI
 ```
